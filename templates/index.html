@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu</title>
+<style>
+body {
+    background-color: #657BA6;
+    font-family: 'Arial Black', Gadget, sans-serif;
+    color: #D9D9D9;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
+  .menu {
+    width: 600px;
+    margin: 0;
+    border: 1px solid #7B89A6;
+    background-color: #8F9FBF;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+  
+  h1 {
+    font-size: 64px;
+    font-weight: bold;
+    color: #ffffffef;
+    margin-top: 0;
+    padding: 40px;
+    background-color: #7B89A6;
+    border-bottom: 2px solid #657BA6;
+    border-radius: 10px 10px 0 0;
+  }
+  
+  button {
+    display: block;
+    width: calc(100% - 4px);
+    padding: 60px;
+    margin: 4px;
+    border: none;
+    background-color: #A3AFBF;
+    color: #ffffffef;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #7B89A6;
+    color: #95a9d3;
+  }
+  
+  @media (max-width: 768px) {
+    .menu {
+      width: 80%;
+    }
+  
+    h1, button {
+      padding: 20px;
+    }
+  }
+
+</style>
+<script>
+  function navigateTo(url) {
+    window.location.href = url;
+  }
+</script>
+</head>
+<body>
+  <div class="menu">
+    <h1>Menu</h1>
+    <button onclick="navigateTo('speech_to_text')">Speech Recognition</button>
+    <button onclick="navigateTo('live_speech')">Live microphone speech recognition</button>
+    <button onclick="navigateTo('file_search')">File search</button>
+  </div>
+</body>
+</html>

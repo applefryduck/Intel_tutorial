@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Search Interface</title>
+    <style>
+  /* Embed your CSS here */
+    body {
+        background-color: #657BA6;
+        font-family: 'Arial Black', Gadget, sans-serif;
+        color: #D9D9D9;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    .file-search-interface {
+        width: 1200px;
+        height: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #7B89A6;
+        background-color: #8F9FBF;
+        text-align: center;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+    }
+
+    .file-search-interface h1{
+        font-size: 40px;
+        color: #ffffff;
+        font-family: 'Arial Black', Gadget, sans-serif;
+    }
+    .file-search-interface label, .results-display, .audio-selection p {
+        font-size: 24px;
+        color: #ffffff;
+        font-family: 'Arial Black', Gadget, sans-serif;
+    }
+
+    select, .results-display, button {
+        margin: 10px 0;
+        padding: 10px 15px;
+        font-size: 24px;
+        border: 1px solid #A3AFBF;
+        border-radius: 5px;
+        font-family: 'Arial Black', sans-serif;
+    }
+
+    .results-display {
+        height: calc(50% - 10px);
+        background-color: #657BA6;
+        color: #fff;
+        margin: 20px 0;
+        border-radius: 5px;
+    }
+
+    .action-button {
+    display: flex;
+    padding: 10px 15px;
+    background-color: #48A9A6; /* Example color */
+    color: #FFFFFF;
+    }
+
+    .action-button:hover {
+    background-color: #3B8D99; /* Darker shade for hover */
+    color: #ffffff;
+    }
+    .search-btn{
+        margin: 10px 0;
+        padding: 10px 15px;
+        font-size: 24px;
+        background-color: #48A9A6;
+        border: 1px solid #A3AFBF;
+        border-radius: 5px;
+        font-family: 'Arial Black', sans-serif;
+    }
+    .search-btn:hover {
+        background-color: #3B8D99; /* Darker shade for hover */
+        color: #ffffff;
+    }
+    button {
+        justify-content: center;
+        align-items: center;
+        background-color: #A3AFBF;
+        color: #D9D9D9;
+    }
+
+    button:hover, .return-button:hover {
+        background-color: #7B89A6;
+        color: #8faeee;
+    }
+    .keyword{
+    margin: 10px 0;
+    padding: 10px 15px;
+    font-size: 24px;
+    border: 1px solid #A3AFBF;
+    border-radius: 5px;
+    font-family: 'Arial Black', sans-serif;
+    }
+    .control-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px; /* Adjust the space between elements */
+    }
+
+    .progress-display {
+        padding: 10px 25px;
+        width: 50%; /* Adjust based on your preference */
+        height: 40px; /* Match the height of the button for visual consistency */
+        background-color: #D9D9E9; /* Light background color for visibility */
+        border: 1px solid #A3AFBF; /* Border to match button style */
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #657BA6; /* Text color */
+        font-family: 'Arial Black', sans-serif;
+        font-size: 18px; /* Adjust based on your preference */
+    }
+
+    @media (max-width: 768px) {
+        .speech-to-text-interface {
+        width: 90%;
+        padding: 10px;
+        }
+    }    
+  </style>
+</head>
+<body>
+    <div class="file-search-interface">
+        <h1>File Search</h1>
+
+        <label for="dataset-select">Choose a dataset:</label>
+        <select id="dataset-select">
+            {% for dataset in dataset_list %}
+            <option value = "{{dataset}}">{{ dataset }}</option>
+            {% endfor %}
+        </select>
+        <div>
+            <label for="keyword">Keyword:</label>
+            <input class = "keyword"type="text" id="keyword" name="keyword" placeholder="Enter your keyword here...">
+            <button class="search-btn" id="search-keyword-btn" onclick="search_by_keyword()">Search by keyword</button>
+            <button class="search-btn" id="search-embedding-btn" onclick="search_by_text_embedding()">Search by text embedding</button>
+        </div>
+        <div class="results-display">
+            <p>Search results will appear here...</p>
+        </div>
+
+        <button class="return-button" onclick="navigateTo('/')">Return</button>
+    </div>
+
+    <script>
+        function search_by_keyword() {
+            const dataset = document.getElementById('dataset-select').value;
+            const keyword = document.getElementById('keyword').value;
+            fetch(`/search_by_keyword`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    dataset: dataset,
+                    keyword: keyword
+                })
+            }).then(response => response.json())
+            .then(files => {
+                console.log(files);
+                files['files'].forEach(result =>{
+                    console.log(result);
+                })
+                const resultsDisplay = document.querySelector('.results-display');
+                resultsDisplay.innerHTML = '';
+                files['files'].forEach(result => {
+                    const resultElement = document.createElement('p');
+                    resultElement.textContent = result;
+                    resultsDisplay.appendChild(resultElement);
+                });
+            });
+        }
+
+        function search_by_text_embedding() {
+            const dataset = document.getElementById('dataset-select').value;
+            const keyword = document.getElementById('keyword').value;
+            fetch(`/search_by_text_embedding`,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    dataset: dataset,
+                    keyword: keyword
+                })
+            }).then(response => response.json())
+            .then(files => {
+                console.log(files);
+                files['files'].forEach(result =>{
+                    console.log(result);
+                })
+                const resultsDisplay = document.querySelector('.results-display');
+                resultsDisplay.innerHTML = '';
+                files['files'].forEach(result => {
+                    const resultElement = document.createElement('p');
+                    resultElement.textContent = result;
+                    resultsDisplay.appendChild(resultElement);
+                });
+            });
+        }
+
+        function navigateTo(url) {
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>
