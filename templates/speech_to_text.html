@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speech to Text Interface</title>
+<style>
+  /* Embed your CSS here */
+  body {
+    background-color: #657BA6;
+    font-family: 'Arial Black', Gadget, sans-serif;
+    color: #D9D9D9;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  .speech-to-text-interface {
+    width: 1200px;
+    height: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #7B89A6;
+    background-color: #8F9FBF;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+  }
+
+  .speech-to-text-interface h1{
+    font-size: 40px;
+    color: #ffffff;
+    font-family: 'Arial Black', Gadget, sans-serif;
+  }
+  .speech-to-text-interface label, .results-display, .audio-selection p {
+    font-size: 24px;
+    color: #ffffff;
+    font-family: 'Arial Black', Gadget, sans-serif;
+  }
+
+  select, .results-display, button, .prompt{
+    margin: 10px 0;
+    padding: 10px 15px;
+    font-size: 24px;
+    border: 1px solid #A3AFBF;
+    border-radius: 5px;
+    font-family: 'Arial Black', sans-serif;
+  }
+
+  .results-display {
+    height: calc(40% - 10px);
+    background-color: #657BA6;
+    color: #fff;
+    margin: 20px 0;
+    border-radius: 5px;
+  }
+
+  .action-button {
+  display: flex;
+  padding: 10px 15px;
+  background-color: #48A9A6; /* Example color */
+  color: #FFFFFF;
+}
+
+  .action-button:hover {
+  background-color: #3B8D99; /* Darker shade for hover */
+  color: #ffffff;
+  }
+
+  button {
+    justify-content: center;
+    align-items: center;
+    background-color: #A3AFBF;
+    color: #D9D9D9;
+  }
+
+  button:hover, .return-button:hover {
+    background-color: #7B89A6;
+    color: #8faeee;
+  }
+  .save-button {
+    background-color: #48A9A6;
+    color: #FFFFFF;
+  }
+  .save-button:hover {
+    background-color: #3B8D99;
+    color: #ffffff;
+  }
+  .control-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* Adjust the space between elements */
+}
+
+.progress-display {
+    padding: 10px 25px;
+    width: 50%; /* Adjust based on your preference */
+    height: 40px; /* Match the height of the button for visual consistency */
+    background-color: #D9D9E9; /* Light background color for visibility */
+    border: 1px solid #A3AFBF; /* Border to match button style */
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #657BA6; /* Text color */
+    font-family: 'Arial Black', sans-serif;
+    font-size: 18px; /* Adjust based on your preference */
+}
+
+  @media (max-width: 768px) {
+    .speech-to-text-interface {
+      width: 90%;
+      padding: 10px;
+    }
+  }
+</style>
+</head>
+<body>
+    <div class="speech-to-text-interface">
+        <h1>Speech to Text</h1>
+        <div>
+        <label for="file-select">Select a file:</label>
+        <select id="file-select">
+          {% for audio_file in audio_files_list %}
+          <option value = "{{audio_file}}">{{ audio_file }}</option>
+          {% endfor %}
+        </select>
+        
+        <label for="model-select">Choose a model:</label>
+        <select id="model-select">
+          <option value="base">Base</option>
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+        </select>
+        </div>
+
+        <label for="dataset-select">Enter the prompt:</label>
+        <input class = "prompt"type="text" id="prompt" name="prompt" placeholder="Prompt can be empty...">
+
+
+        <div class="control-container">
+            <button class="action-button" id = "action-button" onclick="startRecognition()">Start</button>
+            <div class="progress-display" id = "progress-display">Progress</div>
+        </div>
+
+        <div class="results-display">
+          <p>Recognition results will appear here...</p>
+        </div>
+        <div class="bottom_bar">
+          <label for="dataset-select">Select a dataset:</label>
+          <select id="dataset-select">
+            {% for dataset in dataset_list %}
+            <option value = "{{dataset}}">{{ dataset }}</option>
+            {% endfor %}
+          </select>
+          <button class="save-button" onclick="save_to_dataset()">Save to dataset</button>
+          <button class="return-button" onclick="navigateTo('/')">Return</button>
+        </div>
+      </div>
+      
+      <script src="https://cdn.socket.io/4.7.4/socket.io.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <script>
+        function save_to_dataset(){
+          const result = document.querySelector('.results-display').innerText;
+          if (result === "Recognition results will appear here..."){
+            alert("Please start the recognition first!");
+          }
+          else{
+            const dataset = document.getElementById('dataset-select').value;
+            fetch('/save_to_database', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    file: document.getElementById('file-select').value,
+                    dataset: dataset,
+                    result: result,
+                }),
+            })
+            .then(response => response.json())
+            .then(status => {
+                console.log('Success:', status);
+                alert("Saved to dataset successfully!");
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert("Error occurred while saving to dataset!");
+            });
+          }
+        }
+        function navigateTo(url) {
+          window.location.href = url;
+        }
+        
+        function startRecognition() {
+            const prompt = document.getElementById('prompt').value;
+            const model = document.getElementById('model-select').value;
+            const file = document.getElementById('file-select').value;
+            console.log(prompt, model, file);
+            updating = setInterval(updateProgress, 100);
+            fetch('/start_recognization', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    model: model,
+                    file: file,
+                }),
+            })
+            .then(response => response.json())
+            .then(recognized_text => { 
+                console.log('Success:', recognized_text);
+                const resultsDisplay = document.querySelector('.results-display');
+                resultsDisplay.innerHTML = recognized_text['recognized_text'];
+                clearInterval(updating);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        function updateProgress(progress){
+          fetch('/update_progress', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  progress: progress,
+              }),
+          }).then(response => response.json())
+          .then(data => {
+              console.log(data['progress']);
+              const progressDisplay = document.querySelector('.progress-display');
+              progressDisplay.textContent = data['progress'];
+          })
+        }
+      </script>
+      
+</body>
+</html>
