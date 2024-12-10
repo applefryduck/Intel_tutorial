@@ -78,7 +78,10 @@ def recognize_speech(filename, model, p, progress):
         del chunk
     # remove the chunks
     for i in range(audio_chunks):
-        os.remove("chunks/chunk"+str(i)+".wav")
+        try:
+            os.remove("chunks/chunk"+str(i)+".wav")
+        except:
+            pass
     # remove the punctuation of the text
     print("Removing punctuation")
     progress.set_progress("Removing punctuation")
